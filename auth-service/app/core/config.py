@@ -1,3 +1,4 @@
+# app/core/config.py
 """Application settings using Pydantic Settings (async ready)."""
 
 from pydantic import Field
@@ -43,6 +44,7 @@ class Settings(BaseSettings):
     """Main application settings."""
 
     app_name: str = Field(..., alias="APP_NAME")
+    base_url: str = Field(..., alias="BASE_URL")
     env: str = Field(..., alias="ENV")
     debug: bool = Field(..., alias="DEBUG")
     port: int = Field(..., alias="PORT")

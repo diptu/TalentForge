@@ -30,6 +30,7 @@ async def test_full_health() -> None:
         assert "server" in details, "'server' key missing in response details"
         assert "database" in details, "'database' key missing in response details"
         assert "redis" in details, "'redis' key missing in response details"
-        assert data["data"]["status"] in ("ok", "fail"), (
-            "Status should be 'ok' or 'fail'"
-        )
+        assert data["data"]["status"] in (
+            "ok",
+            "fail",
+        ), "Status should be 'ok' or 'fail'"

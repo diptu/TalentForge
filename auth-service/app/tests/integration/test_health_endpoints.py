@@ -1,11 +1,12 @@
 # app/tests/integration/test_health_endpoints.py
-import pytest
 from unittest.mock import AsyncMock
+
+import pytest
 from httpx import AsyncClient
 from httpx._transports.asgi import ASGITransport
 
+from app.db.session import AsyncSession, get_db  # <- import get_db here
 from app.main import app
-from app.db.session import get_db, AsyncSession  # <- import get_db here
 
 
 @pytest.mark.asyncio

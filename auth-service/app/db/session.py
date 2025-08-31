@@ -10,7 +10,7 @@ from app.core.config import settings
 engine = create_async_engine(
     settings.database.uri,  # e.g. 'postgresql+asyncpg://user:pass@host/dbname'
     future=True,
-    echo=False,
+    echo=True,
     connect_args={"ssl": "require"},  # pass SSL here instead of in URI
 )
 
