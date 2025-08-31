@@ -370,3 +370,72 @@ uv sync
  CDN for static frontend assets (Next.js / Tailwind)
 
  Auto-scaling background workers for async tasks
+
+
+## 🏠 Hosting Plan
+
+<details>
+<summary>1️⃣ Compute Layer (FastAPI App)</summary>
+
+**Best Option:** AWS App Runner (Serverless Container)  
+
+**Why:**
+- ✅ Fully managed, scales automatically
+- ✅ Supports async frameworks like FastAPI natively
+- ✅ Deploy directly from GitHub or Docker image
+- 🆓 Free tier: 750 hours/month + 1 GB storage
+
+**Alternative:** AWS Lambda with Mangum adapter  
+- Lower cost, but cold starts may affect performance
+- App Runner is simpler for full-featured async apps
+</details>
+
+<details>
+<summary>2️⃣ Database Layer (PostgreSQL)</summary>
+
+**Best Option:** Amazon RDS (PostgreSQL Free Tier)  
+
+**Why:**
+- ✅ Fully managed DB (automatic backups, monitoring)
+- 🆓 Free tier: 750 hours/month + 20 GB storage
+- ✅ Easy integration with FastAPI async via asyncpg or SQLAlchemy AsyncSession
+
+**Alternative for scalability:** Aurora Serverless v2  
+- Pay-per-use for unpredictable load spikes
+- Free-tier for 12 months sufficient for dev/test
+</details>
+
+<details>
+<summary>3️⃣ Cache Layer (Redis)</summary>
+
+**Best Option:** Amazon ElastiCache Redis (t2.micro / free tier)  
+
+**Why:**
+- ✅ Managed Redis with monitoring, persistence, and automatic failover
+- 🆓 Free tier: 750 hours/month + 750 MB memory
+- Perfect for async session caching, JWT blacklisting, or rate limiting
+
+**Alternative:** Lightweight Redis on EC2/Lightsail  
+- You’ll manage updates and backups manually
+</details>
+
+<details>
+<summary>4️⃣ Networking & Security</summary>
+
+- 🔒 Use AWS VPC to isolate RDS and Redis instances
+- 🔒 Add security groups allowing App Runner/EC2 access only to DB and Redis ports
+- 🔐 For HTTPS endpoints, App Runner or API Gateway provides SSL automatically
+</details>
+
+<details>
+<summary>5️⃣ Recommended Stack for Free Tier + Production-like Dev/Test</summary>
+
+| Layer        | Service            | Reasoning                                    |
+|-------------|------------------|---------------------------------------------|
+| FastAPI App | AWS App Runner     | Managed async, auto-scaling, free-tier hours |
+| Database    | RDS PostgreSQL     | Managed, async-ready, 20GB free storage     |
+| Cache       | ElastiCache Redis  | Managed, async-compatible, free-tier memory |
+| Security    | VPC + Security Groups | Isolate DB/Redis, allow only App access  |
+
+![Hosting](./host.png "Hosting Architecture")
+</details>
