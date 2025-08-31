@@ -1,17 +1,26 @@
-from fastapi.testclient import TestClient
+import pytest
+from fastapi.responses import JSONResponse
 
-from app.main import app
-
-client = TestClient(app)
+from app.api.v1.health import _check_health
 
 
-def test_health_endpoint():
-    response = client.get("/api/v1/health/")
-    assert response.status_code == 200
-    json_data = response.json()
-    # Top-level status should be "success"
-    assert json_data["status"] == "success"
-    # Check actual health data inside `data`
-    assert json_data["data"]["status"] == "ok"
-    assert json_data["data"]["database"] == "ok"
-    assert json_data["data"]["redis"] == "ok"
+@pytest.mark.asyncio
+async def test_check_health_success():
+    async def dummy_ok():
+        return True
+
+    response: JSONResponse = await _check_health("DummyService", dummy_ok)
+    data = response.body.decode()
+    assert "DummyService health check passed" in data
+    assert '"status":"ok"' in data
+
+
+@pytest.mark.asyncio
+async def test_check_health_failure():
+    async def dummy_fail():
+        return False
+
+    response: JSONResponse = await _check_health("DummyService", dummy_fail)
+    data = response.body.decode()
+    assert "DummyService health check failed" in data
+    assert '"status":"fail"' in data

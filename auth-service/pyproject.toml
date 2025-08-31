@@ -5,7 +5,12 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "asyncpg==0.28.0",
     "fastapi[standard]>=0.116.1",
+    "greenlet>=3.2.4",
+    "psycopg2>=2.9.10",
+    "pydantic-settings>=2.10.1",
+    "redis>=5.0.0",
     "sqlalchemy>=2.0.43",
 ]
 
@@ -49,7 +54,11 @@ ignore = ["E501"]
 
 [dependency-groups]
 dev = [
+    "asgi-lifespan>=2.1.0",
+    "black>=25.1.0",
+    "isort>=6.0.1",
     "pytest>=8.4.1",
+    "pytest-asyncio>=1.1.0",
     "pytest-cov>=6.2.1",
     "ruff>=0.12.11",
 ]

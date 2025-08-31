@@ -2,7 +2,7 @@
 # Auth Service Makefile (UV-based workflow)
 # =======================================
 
-.PHONY: start test test-unit test-integration test-e2e test-health coverage lint format typecheck precommit
+.PHONY: start test test-unit test-integration test-e2e test-health coverage lint lint-fix format typecheck precommit
 
 # Start the FastAPI server
 start:
@@ -36,9 +36,14 @@ coverage:
 lint:
 	uv run ruff check app
 
+# Automatically fix lint issues
+lint-fix:
+	uv run ruff check app --fix
+
 # Format code using black and sort imports with isort
 format:
-	uv run black . && uv run isort .
+	@uv run black . || (uv add --dev black && uv run black .)
+	@uv run isort . || (uv add --dev isort && uv run isort .)
 
 # Type checking with mypy
 typecheck:
