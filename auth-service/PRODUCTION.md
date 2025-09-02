@@ -439,3 +439,6 @@ uv sync
 
 ![Hosting](./host.png "Hosting Architecture")
 </details>
+
+![Auth-flow](./auth_flow.png "flow diagram for JWT + OAuth + Redis")
+</details>

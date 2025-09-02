@@ -8,11 +8,11 @@ from app.db.base import Base
 DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/auth_service_db"
 
 engine = create_async_engine(DATABASE_URL, echo=True)
-AsyncSessionLocal = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+AsyncSessionLocal = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)  # type: ignore[call-overload]
 
 
 @pytest.fixture(scope="session", autouse=True)
-async def setup_db():
+async def setup_db() -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield

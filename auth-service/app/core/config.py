@@ -49,12 +49,12 @@ class Settings(BaseSettings):
     debug: bool = Field(..., alias="DEBUG")
     port: int = Field(..., alias="PORT")
 
-    database: DatabaseSettings = DatabaseSettings()
-    redis: RedisSettings = RedisSettings()
-    jwt: JWTSettings = JWTSettings()
+    database: DatabaseSettings = DatabaseSettings()  # type: ignore[call-arg]
+    redis: RedisSettings = RedisSettings()  # type: ignore[call-arg]
+    jwt: JWTSettings = JWTSettings()  # type: ignore[call-arg]
 
     model_config = SettingsConfigDict(env_file=".env", extra="allow")
 
 
 # Singleton instance
-settings = Settings()
+settings = Settings()  # type: ignore[call-arg]

@@ -8,9 +8,11 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 import app.db.models
 from alembic import context
+import sys
+from pathlib import Path
 
-# Make app importable
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
 
 from app.db.base import Base  # SQLAlchemy declarative base
 

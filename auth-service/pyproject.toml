@@ -9,13 +9,13 @@ dependencies = [
     "bcrypt>=4.3.0",
     "fastapi[standard]>=0.116.1",
     "greenlet>=3.2.4",
-    "jwt>=1.4.0",
     "passlib[bcrypt]>=1.7.4",
     "psycopg2-binary>=2.9.10",
     "pydantic-settings>=2.10.1",
+    "pyjwt>=2.10.1",
     "python-dotenv>=1.1.1",
     "python-jose[cryptography]>=3.5.0",
-    "redis>=5.0.0",
+    "redis[async]>=5.0.0",
     "sqlalchemy>=2.0.43",
 ]
 

@@ -40,4 +40,4 @@ async def list_users(
 ) -> list[models.User]:
     """Return paginated list of users."""
     result = await db.execute(select(models.User).offset(skip).limit(limit))
-    return result.scalars().all()
+    return result.scalars().all()  # type: ignore[return-value]

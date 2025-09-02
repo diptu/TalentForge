@@ -6,13 +6,12 @@ from app.db.models import User
 
 
 @pytest.mark.asyncio
-async def test_user_model_defaults():
+async def test_user_model_defaults() -> None:
     """Test default values for User model fields."""
 
     # Manually set defaults for testing
     user = User(
         email="default@example.com",
-        username="defaultuser",
         hashed_password="hashedpassword",
         is_active=True,  # manually set
         is_superuser=False,  # manually set

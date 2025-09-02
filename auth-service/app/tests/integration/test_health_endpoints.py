@@ -19,7 +19,7 @@ async def test_database_health_ok():
     mock_session.begin.return_value.__aenter__.return_value = None
     mock_session.begin.return_value.__aexit__.return_value = None
 
-    async def mock_get_db():
+    async def mock_get_db() -> None:
         """Async generator to mock get_db dependency."""
         yield mock_session
 

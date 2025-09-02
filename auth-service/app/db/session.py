@@ -1,24 +1,30 @@
-# app/db/session.py
 """Async SQLAlchemy session for PostgreSQL using asyncpg."""
 
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
+from collections.abc import AsyncGenerator
+
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    create_async_engine,
+    async_sessionmaker,
+)
 
 from app.core.config import settings
 
 # Async engine for NeonDB
 engine = create_async_engine(
-    settings.database.uri,  # e.g. 'postgresql+asyncpg://user:pass@host/dbname'
-    future=True,
+    settings.database.uri,
     echo=True,
-    connect_args={"ssl": "require"},  # pass SSL here instead of in URI
+    connect_args={"ssl": "require"},
 )
 
-# Async session factory
-AsyncSessionLocal = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+# Async session factory with proper typing
+AsyncSessionLocal: async_sessionmaker[AsyncSession] = async_sessionmaker(
+    engine,
+    expire_on_commit=False,
+)
 
 
-async def get_db() -> AsyncSession:
-    """Get async database session."""
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    """Yield an async database session."""
     async with AsyncSessionLocal() as session:
         yield session
