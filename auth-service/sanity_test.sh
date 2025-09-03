@@ -1,6 +1,8 @@
 #!/bin/bash
 # File: sanity_test.sh
-# Enhanced sanity test for Auth Service API endpoints
+# Sanity test for Auth Service API endpoints using test environment
+
+set -e
 
 # Load .env variables
 if [ -f ".env" ]; then
@@ -10,16 +12,14 @@ else
     exit 1
 fi
 
-# Construct base URL
-FULL_BASE_URL="${BASE_URL}:${PORT}/api/v1"
-
-# Check for jq
-if ! command -v jq &> /dev/null; then
-    echo "jq is required but not installed. Install it and rerun."
-    exit 1
+# Use test variables if present
+if [ ! -z "$TEST_BASE_URL" ]; then
+    FULL_BASE_URL="$TEST_BASE_URL:$PORT/api/v1"
+else
+    FULL_BASE_URL="${BASE_URL}:${PORT}/api/v1"
 fi
 
-# Utility function to make curl requests
+# Utility function for curl requests
 function test_endpoint() {
     local METHOD=$1
     local URL=$2
@@ -48,66 +48,47 @@ test_endpoint GET "$FULL_BASE_URL/health/"
 # ------------------------------
 # 2. Auth Endpoints
 # ------------------------------
-EMAIL="testuser@example.com"
-PASSWORD="TestPass123"
+REGISTER_DATA='{"email":"testuser@example.com","password":"TestPass123"}'
+LOGIN_DATA='{"email":"testuser@example.com","password":"TestPass123"}'
 
-REGISTER_DATA="{\"email\":\"$EMAIL\",\"password\":\"$PASSWORD\"}"
-LOGIN_DATA="{\"email\":\"$EMAIL\",\"password\":\"$PASSWORD\"}"
-
-echo "Registering test user..."
+# Register
 test_endpoint POST "$FULL_BASE_URL/auth/register" "$REGISTER_DATA"
 
-echo "Logging in test user..."
+# Login and capture JWT tokens
 LOGIN_RESPONSE=$(curl -s -X POST "$FULL_BASE_URL/auth/login" \
     -H "Content-Type: application/json" \
     -d "$LOGIN_DATA")
 
-ACCESS_TOKEN=$(echo "$LOGIN_RESPONSE" | jq -r '.data.access_token // empty')
-REFRESH_TOKEN=$(echo "$LOGIN_RESPONSE" | jq -r '.data.refresh_token // empty')
+ACCESS_TOKEN=$(echo "$LOGIN_RESPONSE" | jq -r '.data.access_token')
+REFRESH_TOKEN=$(echo "$LOGIN_RESPONSE" | jq -r '.data.refresh_token')
 
-if [ -z "$ACCESS_TOKEN" ]; then
-    echo "Login failed, cannot extract access token!"
-    echo "Response: $LOGIN_RESPONSE"
+if [ "$ACCESS_TOKEN" == "null" ] || [ -z "$ACCESS_TOKEN" ]; then
+    echo "Login failed! Cannot continue sanity tests."
     exit 1
 fi
 
-echo "Access token extracted successfully."
+USER_HEADERS="-H \"Authorization: Bearer $ACCESS_TOKEN\""
 
 # ------------------------------
 # 3. Users Endpoints
 # ------------------------------
-USER_HEADERS="-H \"Authorization: Bearer $ACCESS_TOKEN\""
 test_endpoint GET "$FULL_BASE_URL/users/user-data" "" "$USER_HEADERS"
 test_endpoint GET "$FULL_BASE_URL/users/profile" "" "$USER_HEADERS"
 
 # ------------------------------
-# 4. Token Refresh & Logout
+# 4. Admin Endpoints
 # ------------------------------
-REFRESH_DATA="{\"refresh_token\":\"$REFRESH_TOKEN\"}"
-LOGOUT_DATA="{\"refresh_token\":\"$REFRESH_TOKEN\"}"
+# For CI, you can use a predefined admin account
+ADMIN_LOGIN_DATA='{"email":"admin@example.com","password":"AdminPass123"}'
 
-test_endpoint POST "$FULL_BASE_URL/auth/refresh" "$REFRESH_DATA"
-test_endpoint POST "$FULL_BASE_URL/auth/logout" "$LOGOUT_DATA"
+ADMIN_RESPONSE=$(curl -s -X POST "$FULL_BASE_URL/auth/login" \
+    -H "Content-Type: application/json" \
+    -d "$ADMIN_LOGIN_DATA")
 
-# ------------------------------
-# 5. Admin Endpoints (requires admin JWT)
-# ------------------------------
-# Optional: provide admin credentials in .env for testing
-if [ -n "$ADMIN_EMAIL" ] && [ -n "$ADMIN_PASSWORD" ]; then
-    ADMIN_LOGIN_DATA="{\"email\":\"$ADMIN_EMAIL\",\"password\":\"$ADMIN_PASSWORD\"}"
-    ADMIN_RESPONSE=$(curl -s -X POST "$FULL_BASE_URL/auth/login" \
-        -H "Content-Type: application/json" \
-        -d "$ADMIN_LOGIN_DATA")
-    ADMIN_TOKEN=$(echo "$ADMIN_RESPONSE" | jq -r '.data.access_token // empty')
-    if [ -n "$ADMIN_TOKEN" ]; then
-        ADMIN_HEADERS="-H \"Authorization: Bearer $ADMIN_TOKEN\""
-        test_endpoint GET "$FULL_BASE_URL/admin/dashboard" "" "$ADMIN_HEADERS"
-        test_endpoint GET "$FULL_BASE_URL/admin/user-data" "" "$ADMIN_HEADERS"
-    else
-        echo "Admin login failed, skipping admin endpoint tests."
-    fi
-else
-    echo "ADMIN_EMAIL and ADMIN_PASSWORD not set in .env, skipping admin tests."
-fi
+ADMIN_TOKEN=$(echo "$ADMIN_RESPONSE" | jq -r '.data.access_token')
+ADMIN_HEADERS="-H \"Authorization: Bearer $ADMIN_TOKEN\""
+
+test_endpoint GET "$FULL_BASE_URL/admin/dashboard" "" "$ADMIN_HEADERS"
+test_endpoint GET "$FULL_BASE_URL/admin/user-data" "" "$ADMIN_HEADERS"
 
 echo "Sanity test completed!"

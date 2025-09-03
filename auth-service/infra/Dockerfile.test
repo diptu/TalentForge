@@ -7,16 +7,21 @@ WORKDIR /app
 RUN pip install --upgrade pip
 RUN pip install uv pytest pytest-asyncio httpx
 
-# Copy project files from root into container
-COPY ../pyproject.toml ../uv.lock ./
+# Copy project dependency files and install dev dependencies
+COPY pyproject.toml uv.lock ./
 RUN uv sync --dev
 
-# Copy app source code and tests from root
-COPY ../app ./app
-COPY ../tests ./tests
+# Copy app source code (including tests inside app/)
+COPY app ./app
 
 # Set virtualenv path
 ENV PATH="/app/.venv/bin:$PATH"
 
-# Default command: run pytest
-CMD ["pytest", "-v", "tests/integration"]
+# Set environment variables for test configuration
+ENV ENV="test"
+ENV DB_URI="${TEST_DB_URI}"
+ENV REDIS_URL="${TEST_REDIS_URL}"
+ENV JWT_SECRET_KEY="${TEST_JWT_SECRET_KEY}"
+
+# Default command: run pytest (integration tests)
+CMD ["pytest", "-v", "app/tests/integration"]
