@@ -36,9 +36,9 @@
 - [x] Code documentation  
 
 ## ⏳ 6. Remaining Enhancements
-- [x ] Refresh token revocation / blacklist (Redis or DB-backed)  
-- [ ] Rate limiting / brute-force prevention (Redis recommended for fast counter storage)  
-- [ ] Detailed OpenAPI documentation  
+- [x] Refresh token revocation / blacklist (Redis or DB-backed)  
+- [x] Rate limiting / brute-force prevention (Redis recommended for fast counter storage)  
+- [x] Detailed OpenAPI documentation  
 - [ ] CI/CD linting & test automation  
     - [ ] Dockerize the test from inside infra/ directory 
 - [x] Dockerize the service from inside infra/ directory  

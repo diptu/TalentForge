@@ -3,19 +3,31 @@ FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
-# Upgrade pip and install uv + dev dependencies
-RUN pip install --upgrade pip
-RUN pip install uv pytest pytest-asyncio httpx
+# Install uv
+RUN pip install --upgrade pip && pip install uv
 
-# Copy pyproject and lock file
-COPY ../pyproject.toml ../uv.lock ./
-RUN uv sync --dev
+# Copy project files
+COPY pyproject.toml uv.lock ./
 
-# Copy app source code and tests
-COPY ../app ./app
+# Install production dependencies
+RUN uv sync --no-dev
 
-# Set virtualenv path
+# Stage 2: Runtime
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Copy the app source code
+COPY . .
+
+# Copy the virtual environment from builder
+COPY --from=builder /app/.venv /app/.venv
+
+# Add uv's virtual environment bin to PATH
 ENV PATH="/app/.venv/bin:$PATH"
 
-# Default command: run pytest (point to app/tests)
-CMD ["pytest", "-v", "app/tests/integration"]
+# Expose port
+EXPOSE 8000
+
+# Run FastAPI
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

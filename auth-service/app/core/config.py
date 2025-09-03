@@ -40,6 +40,15 @@ class JWTSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="allow")
 
 
+class RateLimitSettings(BaseSettings):
+    """Rate limiting configuration."""
+
+    count: int = Field(5, alias="RATE_LIMIT_COUNT")
+    window: int = Field(60, alias="RATE_LIMIT_WINDOW")
+
+    model_config = SettingsConfigDict(env_file=".env", extra="allow")
+
+
 class Settings(BaseSettings):
     """Main application settings."""
 
@@ -52,7 +61,7 @@ class Settings(BaseSettings):
     database: DatabaseSettings = DatabaseSettings()  # type: ignore[call-arg]
     redis: RedisSettings = RedisSettings()  # type: ignore[call-arg]
     jwt: JWTSettings = JWTSettings()  # type: ignore[call-arg]
-
+    rate_limit: RateLimitSettings = RateLimitSettings()  # type: ignore[call-arg]
     model_config = SettingsConfigDict(env_file=".env", extra="allow")
 
 

@@ -1,85 +1,56 @@
-# app/utils/response.py
 """
-Response utility module for standardized API responses.
-
-Provides helper functions to format success and error responses
-consistently across the application.
+File: app/utils/response.py
+Standardized JSON response helpers for API endpoints.
 """
 
-from typing import Any, Optional
-
+from typing import Any, Dict
 from fastapi.responses import JSONResponse
+from fastapi import status
 
 
-def success_response(
-    data: Any = None, code: int = 200, message: str = "Success"
-) -> JSONResponse:
+def success_response(data: Any, message: str = "Success") -> JSONResponse:
     """
-    Create a standardized success response.
+    Standardized JSON response for successful API calls.
 
     Parameters
     ----------
-    data : Any, optional
-        The response payload, by default None
-    code : int, optional
-        HTTP status code, by default 200
+    data : Any
+        The payload data to include in the response.
     message : str, optional
-        Human-readable success message, by default "Success"
+        Human-readable message (default "Success").
 
     Returns
     -------
     JSONResponse
-        A FastAPI JSONResponse with the standardized structure.
-
-    Example
-    -------
-    >>> success_response(data={"id": 1}, message="User created")
-    JSONResponse(content={'status': 'success', 'code': 200,
-                          'message': 'User created', 'data': {'id': 1}})
+        FastAPI JSONResponse with structured success format.
     """
-    return JSONResponse(
-        status_code=code,
-        content={
-            "status": "success",
-            "code": code,
-            "message": message,
-            "data": data,
-        },
-    )
+    response_content: Dict[str, Any] = {
+        "status": "success",
+        "message": message,
+        "data": data,
+    }
+    return JSONResponse(status_code=status.HTTP_200_OK, content=response_content)
 
 
-def error_response(
-    code: int = 400, message: str = "Error", details: Optional[Any] = None
-) -> JSONResponse:
+def error_response(code: int, message: str, details: Any = None) -> JSONResponse:
     """
-    Create a standardized error response.
+    Standardized JSON response for API errors.
 
     Parameters
     ----------
-    code : int, optional
-        HTTP status code, by default 400
-    message : str, optional
-        Human-readable error message, by default "Error"
+    code : int
+        HTTP status code to return.
+    message : str
+        Human-readable error message.
     details : Any, optional
-        Additional error details, by default None
+        Optional additional information about the error.
 
     Returns
     -------
     JSONResponse
-        A FastAPI JSONResponse with the standardized error structure.
-
-    Example
-    -------
-    >>> error_response(code=404, message="Not Found", details="User not found")
-    JSONResponse(content={'status': 'error', 'code': 404,
-                          'message': 'Not Found', 'details': 'User not found'})
+        FastAPI JSONResponse with structured error format.
     """
-    return JSONResponse(
-        status_code=code,
-        content={
-            "status": "error",
-            "code": code,
-            "message": message,
-            "details": details,
-        },
-    )
+    response_content: Dict[str, Any] = {"status": "error", "message": message}
+    if details is not None:
+        response_content["details"] = details
+    return JSONResponse(status_code=code, content=response_content)
