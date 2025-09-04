@@ -40,10 +40,10 @@
 - [x] Rate limiting / brute-force prevention (Redis recommended for fast counter storage)  
 - [x] Detailed OpenAPI documentation  
 - [ ] CI/CD linting & test automation  
-    - [ ] Dockerize the test from inside infra/ directory 
+    - [x] Dockerize the test from inside infra/ directory 
 - [x] Dockerize the service from inside infra/ directory  
 - [ ] Build container image  
-- [ ] Configure environment variables (DB, JWT, Redis)  
+- [x] Configure environment variables (DB, JWT, Redis)  
 - [ ] Kubernetes deployment manifests  
 - [ ] Deployment, Service, ConfigMap, Secret  
 - [ ] Include Redis as sidecar or external service  
