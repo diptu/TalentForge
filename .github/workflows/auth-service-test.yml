@@ -1,5 +1,4 @@
-# File: .github/workflows/auth-service-test.yml
-name: auth-service • Tests (pytest)
+name: auth-service • Tests (pytest via Makefile)
 
 on:
   push: {}
@@ -7,13 +6,53 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  test:
+  tests:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [test, test-unit, test-integration, test-e2e]
+
     defaults:
       run:
         working-directory: auth-service
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: testdb
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd="pg_isready -U testuser -d testdb"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+      redis:
+        image: redis:7-alpine
+        command: ["redis-server", "--requirepass", "testredis"]
+        ports:
+          - 6380:6379
+        options: >-
+          --health-cmd="redis-cli -a testredis -h 127.0.0.1 -p 6379 ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      DB_URI: postgresql+asyncpg://testuser:testpass@localhost:5433/testdb
+      DATABASE_URL: postgresql://testuser:testpass@localhost:5433/testdb
+      REDIS_URL: redis://:testredis@localhost:6380/1
+      JWT_SECRET_KEY: test_super_secret_jwt_key
+      PYTHONWARNINGS: default
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -23,18 +62,35 @@ jobs:
           python -m pip install --upgrade pip
           pip install uv
 
-      - name: Cache uv & venv
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/uv
-            .venv
-          key: uv-${{ runner.os }}-${{ hashFiles('auth-service/pyproject.toml','auth-service/uv.lock') }}
-          restore-keys: |
-            uv-${{ runner.os }}-
+      - name: Install deps (dev)
+        run: uv sync --group dev --extra dev
 
-      - name: Sync dependencies
-        run: uv sync --dev
+      - name: Wait for Postgres & Redis
+        shell: bash
+        run: |
+          echo "Waiting for Postgres..."
+          for i in {1..30}; do
+            if pg_isready -h 127.0.0.1 -p 5433 -U testuser >/dev/null 2>&1; then
+              echo "Postgres ready"; break
+            fi
+            sleep 2
+          done
+          echo "Waiting for Redis..."
+          for i in {1..30}; do
+            if redis-cli -a testredis -h 127.0.0.1 -p 6380 ping | grep -q PONG; then
+              echo "Redis ready"; break
+            fi
+            sleep 2
+          done
 
-      - name: Run pytest
-        run: uv run pytest -v app/tests
+      - name: Run Alembic migrations (if present)
+        shell: bash
+        run: |
+          if [ -f "alembic.ini" ] || [ -d "alembic" ]; then
+            uv run alembic upgrade head
+          else
+            echo "No Alembic config detected; skipping migrations."
+          fi
+
+      - name: Run ${{ matrix.target }}
+        run: make ${{ matrix.target }}

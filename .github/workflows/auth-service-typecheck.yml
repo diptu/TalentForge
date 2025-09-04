@@ -1,5 +1,4 @@
-# File: .github/workflows/auth-service-typecheck.yml
-name: auth-service • Typecheck (mypy)
+name: auth-service • Typecheck (mypy via Makefile)
 
 on:
   push: {}
@@ -14,6 +13,7 @@ jobs:
         working-directory: auth-service
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -23,18 +23,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install uv
 
-      - name: Cache uv & venv
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/uv
-            .venv
-          key: uv-${{ runner.os }}-${{ hashFiles('auth-service/pyproject.toml','auth-service/uv.lock') }}
-          restore-keys: |
-            uv-${{ runner.os }}-
+      - name: Install deps (dev)
+        run: uv sync --group dev --extra dev
 
-      - name: Sync dependencies
-        run: uv sync --dev
-
-      - name: Run mypy
-        run: uv run mypy app
+      - name: Typecheck
+        run: make typecheck
