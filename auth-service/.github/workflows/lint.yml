@@ -1,15 +1,25 @@
 # File: .github/workflows/lint.yml
-name: Lint (pylint)
+name: Lint (auth-service)
 
 on:
   push:
     branches: [main]
+    paths:
+      - "auth-service/**"
+      - ".github/workflows/lint.yml"
   pull_request:
     branches: [main]
+    paths:
+      - "auth-service/**"
+      - ".github/workflows/lint.yml"
+  workflow_dispatch:
 
 jobs:
   lint:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: auth-service
     steps:
       - uses: actions/checkout@v4
 
@@ -28,7 +38,9 @@ jobs:
           path: |
             ~/.cache/uv
             .venv
-          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+          key: uv-${{ runner.os }}-${{ hashFiles('auth-service/pyproject.toml', 'auth-service/uv.lock') }}
+          restore-keys: |
+            uv-${{ runner.os }}-
 
       - name: Sync dependencies
         run: uv sync --dev

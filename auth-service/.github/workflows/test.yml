@@ -1,15 +1,25 @@
 # File: .github/workflows/test.yml
-name: Tests (pytest)
+name: Tests (auth-service / pytest)
 
 on:
   push:
     branches: [main]
+    paths:
+      - "auth-service/**"
+      - ".github/workflows/test.yml"
   pull_request:
     branches: [main]
+    paths:
+      - "auth-service/**"
+      - ".github/workflows/test.yml"
+  workflow_dispatch:
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: auth-service
     steps:
       - uses: actions/checkout@v4
 
@@ -28,10 +38,13 @@ jobs:
           path: |
             ~/.cache/uv
             .venv
-          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+          key: uv-${{ runner.os }}-${{ hashFiles('auth-service/pyproject.toml', 'auth-service/uv.lock') }}
+          restore-keys: |
+            uv-${{ runner.os }}-
 
       - name: Sync dependencies
         run: uv sync --dev
 
+      # Adjust/mark tests if some require DB/Redis; this is a minimal no-services run.
       - name: Run pytest
         run: uv run pytest -v app/tests
