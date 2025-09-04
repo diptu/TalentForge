@@ -7,9 +7,9 @@ FastAPI entrypoint for Auth Service with detailed OpenAPI documentation.
 
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
-from app.core.middleware import JWTBlacklistMiddleware
-from app.api.v1 import api_v1_router
 
+from app.api.v1 import api_v1_router
+from app.core.middleware import JWTBlacklistMiddleware
 
 app = FastAPI(
     title="Auth Service",

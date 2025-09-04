@@ -1,8 +1,9 @@
 # app/db/models.py
-from datetime import datetime
 import enum
+from datetime import datetime
 
-from sqlalchemy import Boolean, Column, DateTime, Integer, String, Enum
+from sqlalchemy import Boolean, Column, DateTime, Enum, Integer, String
+
 from app.db.base import Base
 
 

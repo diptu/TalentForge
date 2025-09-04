@@ -1,14 +1,14 @@
 # app/core/permissions.py
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.jwt import decode_token
 from app.db.models import User, UserRole
 from app.db.session import get_db
-from app.core.jwt import decode_token
 
 
 async def get_current_user(token: str, db: AsyncSession = Depends(get_db)) -> User:
     """Get current user from JWT token."""
-    from app.core.jwt import decode_token
 
     try:
         payload = decode_token(token)

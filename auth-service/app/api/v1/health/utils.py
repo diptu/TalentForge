@@ -1,7 +1,8 @@
 from typing import Any, Callable, Dict
+
 from fastapi import status
 
-from app.utils.response import success_response, error_response
+from app.utils.response import error_response, success_response
 
 
 async def check_health(
@@ -19,9 +20,11 @@ async def check_health(
         details = {details_key: status_val} if details_key else None
         return success_response(
             data={"status": status_val, "details": details},
-            message=f"{service_name} health check passed"
-            if healthy
-            else f"{service_name} health check failed",
+            message=(
+                f"{service_name} health check passed"
+                if healthy
+                else f"{service_name} health check failed"
+            ),
         )
     except Exception as exc:
         details = {details_key: "fail"} if details_key else None

@@ -1,8 +1,10 @@
 # app/core/security.py
+import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict
-import uuid
+
 import jwt
+
 from app.core.config import settings
 
 SECRET_KEY = settings.jwt.secret_key

@@ -4,13 +4,15 @@ User-related API routes with RBAC and OpenAPI docs.
 """
 
 from typing import Any, Dict
+
 from fastapi import APIRouter, Depends
+
 from app.core.rbac import require_roles
 from app.db.models import UserRole
 from app.utils.response import success_response
 
-from .schemas import UserDataEnvelope, UserProfileResponse
 from .docs import USER_DATA_DOCS, USER_PROFILE_DOCS
+from .schemas import UserDataEnvelope, UserProfileResponse
 
 router = APIRouter(prefix="/users", tags=["users"])
 

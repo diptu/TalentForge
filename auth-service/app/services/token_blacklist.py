@@ -2,6 +2,7 @@
 """Redis-backed refresh token blacklist."""
 
 import time
+
 from redis.asyncio import Redis
 
 from app.core.config import settings

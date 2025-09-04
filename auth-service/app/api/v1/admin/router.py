@@ -4,11 +4,14 @@ Admin-related API routes with RBAC and OpenAPI docs.
 """
 
 from typing import Any, Dict
+
 from fastapi import APIRouter, Depends
+
 from app.core.rbac import require_roles
 from app.db.models import UserRole
-from .schemas import AdminDashboardResponse, AdminUserDataEnvelope
+
 from .docs import ADMIN_DASHBOARD_DOCS, ADMIN_USER_DATA_DOCS
+from .schemas import AdminDashboardResponse, AdminUserDataEnvelope
 
 # ⚠ router must be defined BEFORE using @router.get decorators
 router = APIRouter(prefix="/admin", tags=["admin"])

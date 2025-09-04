@@ -4,20 +4,21 @@ Authentication endpoints with JWT, Redis-based rate limiting, and robust error h
 """
 
 from typing import Any, Dict, Optional
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+
+from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.hashing import hash_password, verify_password
+from app.core.rate_limiter import RateLimiter, get_rate_limiter
 from app.core.security import create_access_token, create_refresh_token, decode_token
-from app.services.token_blacklist import add_to_blacklist, is_blacklisted
 from app.db import crud
 from app.db.models import User, UserRole
 from app.db.schemas import UserCreate, UserLogin
 from app.db.session import get_db
-from app.core.rate_limiter import get_rate_limiter, RateLimiter
-from app.utils.response import success_response, error_response
+from app.services.token_blacklist import add_to_blacklist, is_blacklisted
+from app.utils.response import error_response, success_response
 
-from .schemas import TokenRefreshRequest, TokenLogoutRequest
+from .schemas import TokenLogoutRequest, TokenRefreshRequest
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

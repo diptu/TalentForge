@@ -4,6 +4,7 @@ JWT utility functions for access and refresh token handling.
 
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, cast
+
 import jwt
 
 from app.core.config import settings

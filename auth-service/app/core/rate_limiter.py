@@ -9,8 +9,8 @@ Prevents brute-force attacks and request flooding by IP or user identifier.
 
 from typing import Optional
 
-from fastapi import Request, HTTPException, status, Depends
 import redis.asyncio as aioredis
+from fastapi import Depends, HTTPException, Request, status
 
 from app.core.config import settings
 
