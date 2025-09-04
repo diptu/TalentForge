@@ -1,18 +1,10 @@
-# File: .github/workflows/typecheck.yml
-name: Typecheck (auth-service / mypy)
+# File: .github/workflows/auth-service-typecheck.yml
+name: auth-service • Typecheck (mypy)
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "auth-service/**"
-      - ".github/workflows/typecheck.yml"
-  pull_request:
-    branches: [main]
-    paths:
-      - "auth-service/**"
-      - ".github/workflows/typecheck.yml"
-  workflow_dispatch:
+  push: {}
+  pull_request: {}
+  workflow_dispatch: {}
 
 jobs:
   typecheck:
@@ -22,7 +14,6 @@ jobs:
         working-directory: auth-service
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -38,7 +29,7 @@ jobs:
           path: |
             ~/.cache/uv
             .venv
-          key: uv-${{ runner.os }}-${{ hashFiles('auth-service/pyproject.toml', 'auth-service/uv.lock') }}
+          key: uv-${{ runner.os }}-${{ hashFiles('auth-service/pyproject.toml','auth-service/uv.lock') }}
           restore-keys: |
             uv-${{ runner.os }}-
 

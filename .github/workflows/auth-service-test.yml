@@ -1,28 +1,19 @@
-# File: .github/workflows/lint.yml
-name: Lint (auth-service)
+# File: .github/workflows/auth-service-test.yml
+name: auth-service • Tests (pytest)
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "auth-service/**"
-      - ".github/workflows/lint.yml"
-  pull_request:
-    branches: [main]
-    paths:
-      - "auth-service/**"
-      - ".github/workflows/lint.yml"
-  workflow_dispatch:
+  push: {}
+  pull_request: {}
+  workflow_dispatch: {}
 
 jobs:
-  lint:
+  test:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: auth-service
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -38,12 +29,12 @@ jobs:
           path: |
             ~/.cache/uv
             .venv
-          key: uv-${{ runner.os }}-${{ hashFiles('auth-service/pyproject.toml', 'auth-service/uv.lock') }}
+          key: uv-${{ runner.os }}-${{ hashFiles('auth-service/pyproject.toml','auth-service/uv.lock') }}
           restore-keys: |
             uv-${{ runner.os }}-
 
       - name: Sync dependencies
         run: uv sync --dev
 
-      - name: Run pylint
-        run: uv run pylint app
+      - name: Run pytest
+        run: uv run pytest -v app/tests
